@@ -1,0 +1,15 @@
+Command line tool for test project: Image sync with the use of MD5
+
+Requirements:
+apt-get install php-zip
+
+
+
+php run_cli.php
+
+Command-line options:
+-z          creates new zip in current directory
+-f [file]   compare md5 files
+-q          quiet. no output 
+-r          rehash serverside md5
+

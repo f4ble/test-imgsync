@@ -1,11 +1,4 @@
 <?php
-/*
-Command-line options:
--z          creates new zip (only available with -f present)
--f [file]   compare md5 files
--q          quiet. no output 
--r          rehash serverside md5
-*/
 
 require_once("tools.php");
 

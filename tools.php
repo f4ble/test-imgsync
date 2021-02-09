@@ -1,9 +1,5 @@
 <?php
-/*
-Requirements:
-apt-get install php-zip
 
-*/
 class ImageDownloader {
     private $path; // Path to serverside images.
     public $files = array(); // Key = Filename, Value = MD5
@@ -26,7 +22,7 @@ class ImageDownloader {
         foreach($files as $img=>$md5) {
             $imgFile = $this->path . $img;
             out("Zipping file: " . $imgFile);
-            if ($zip->addFile($imgFile,ZipArchive::FL_NODIR) === false) throw new Exception("Unable to zip file: " .  $imgFile . " to zip file: " . $fileName);
+            if ($zip->addFile($imgFile,$img) === false) throw new Exception("Unable to zip file: " .  $imgFile . " to zip file: " . $fileName);
         }
         $zip->close();
     }
