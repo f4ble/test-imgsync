@@ -24,6 +24,8 @@ $dl = new ImageDownloader($path);
 $dl->loadServerHashes();
 out("Init complete.\n###");
 
+
+
 //Logic
 if (isset($options["r"])) {
     //-r Rehash server files
