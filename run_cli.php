@@ -1,6 +1,6 @@
-<?php
+<?php namespace TestProject;
 
-require_once("tools.php");
+require_once("ImageDownloader.php");
 
 //Because we no like them globals!
 abstract class Settings {
@@ -23,7 +23,6 @@ $path = getcwd() . "/images"; //Path to serverside images
 $dl = new ImageDownloader($path);
 $dl->loadServerHashes();
 out("Init complete.\n###");
-
 
 //Logic
 if (isset($options["r"])) {

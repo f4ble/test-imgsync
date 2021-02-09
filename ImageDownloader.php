@@ -1,13 +1,20 @@
-<?php
+<?php namespace TestProject;
 
 class ImageDownloader {
     private $path; // Path to serverside images.
-    public $files = array(); // Key = Filename, Value = MD5
-    private $legalExtensions = array("jpg","png","bmp"); //Only open these files
-    private $md5FileName = "image_md5.json";
+    public $files = array(); // Serverside MD5 hashes. Key = Filename, Value = MD5
+    private $legalExtensions = array("jpg","png","bmp"); //Only open these files. Didn't add all the rest of the extensions... 
+    private $md5FileName = "image_md5.json"; //serverside md5 file stored in $this->path
+    
 
-
-    //Files are the ones to zip and fileName is the zipfile name.
+    /**
+     * zipImages
+     * Files are the ones to zip and fileName is the zipfile name.
+     *
+     * @param array  $files      List of files to zip within ImageDownloader->$path
+     * @param string $fileName   Zip Filename
+     * @return void
+     */
     function zipImages($files,$fileName) {
         $zip = new ZipArchive();
 
@@ -27,7 +34,14 @@ class ImageDownloader {
         $zip->close();
     }
 
+    /**
+    * compareImages
+    * Compare MD5 file from client to server
+    * @param string $clientMd5raw Contents of md5 file (json encoded text)
+    * @return array Array with list of [client] missing/to delete/to update/matched images.
+    */
     function compareImages($clientMd5raw) {
+        
         $clientJson = $this->_jsonDecodeVersionFile(null,$clientMd5raw);
         
         $result = array( // "missing"=>filename=>md5 (using filename also as key for easy comparison/merging)
@@ -60,10 +74,20 @@ class ImageDownloader {
         return $result;
     }
 
+    /**
+    * Construct and set path to server-side images
+    * @param string $path Path to server-side images
+    */
     function __construct($path) {
         $this->setPath($path); //Forcing setPath at time of construct prevents us from having to trap for empty path throughout.
     }
-
+    
+    /**
+     * setPath
+     * Path to server images. Called by constructor, but available for special cases.
+     * @param  string $path
+     * @return void
+     */
     function setPath($path) {
         if (substr($path,-1) != "/") $path .= "/"; //Add a slash please! Uniform paths ftw.
 
@@ -71,7 +95,12 @@ class ImageDownloader {
         $this->path = $path;
         out("Path set to: " . $this->path);
     }
-
+    
+    /**
+     * saveServerHashes
+     * Save $this->files to an MD5 hashfile that clients will compare to.
+     * @return void
+     */
     function saveServerHashes() {
         if (!count($this->files)) {
             out("Skipping saving server hashes. Empty file list");
@@ -90,7 +119,12 @@ class ImageDownloader {
 
         out("Server hashes saved to: " . $md5File);
     }
-
+    
+    /**
+     * loadServerHashes
+     * Load serverside md5 list.
+     * @return void
+     */
     function loadServerHashes() {
         $md5File = $this->path . $this->md5FileName;
 
@@ -112,8 +146,12 @@ class ImageDownloader {
         out("Loaded server hashes: " . count($this->files) . "\n\t" . join("\n\t",array_keys($this->files)) . "\n");
         
     }
-
-    //Load all images in specified folder $this->path and MD5 their contents.
+        
+    /**
+     * rehashServerFiles
+     * Load all images in specified folder $this->path and MD5 their contents.
+     * @return void
+     */
     function rehashServerFiles() {
         $array = scandir($this->path);
 
@@ -134,14 +172,26 @@ class ImageDownloader {
         $this->files = $files;
     }
 
-
+    /**
+    * _jsonDecodeVersionFile
+    *  Requires either filePath or rawJson
+    *  @param  string (optional) $filePath   File will be opened and then json_decoded
+    *  @param  string (optional) $rawJson    String will be json_decoded 
+    *  @return string JSON  Decoded as array
+    */
     private function _jsonDecodeVersionFile($filePath=null,$rawJson=null) {
         if ($filePath) $rawJson = $this->_loadVersionFile($filePath);
         $json = json_decode($rawJson,true);
         if ($json === null) throw new Exception("Unable to decode json: \n" . $json . "\n####\n");
         return $json;
     }
-
+    
+    /**
+     * _loadVersionFile
+     * Load a file
+     * @param  string $path
+     * @return void
+     */
     private function _loadVersionFile($path) {
         if (!file_exists($path)) throw new Exception("Unable to find path: " . $path);
         $contents = file_get_contents($path);
