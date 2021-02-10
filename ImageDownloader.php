@@ -16,14 +16,14 @@ class ImageDownloader {
      * @return void
      */
     function zipImages($files,$fileName) {
-        $zip = new ZipArchive();
+        $zip = new \ZipArchive();
 
         if (file_exists($fileName)) {
             throw new Exception("Unable to open zip file. File exists");
         }
 
         out("Creating zip archive: " . $fileName);
-        if ($zip->open($fileName, ZipArchive::CREATE) !== true) {
+        if ($zip->open($fileName, \ZipArchive::CREATE) !== true) {
             throw new Exception("Zip: Unable to open file $fileName");
         }
         foreach($files as $img=>$md5) {
@@ -31,6 +31,10 @@ class ImageDownloader {
             out("Zipping file: " . $imgFile);
             if ($zip->addFile($imgFile,$img) === false) throw new Exception("Unable to zip file: " .  $imgFile . " to zip file: " . $fileName);
         }
+        //Always zip the full md5 file (instead of just modified). The client should be updated after they receive the new zip file.
+        $md5File = $this->path . $this->md5FileName;
+        out("Zipping file: " . $md5File);
+        if ($zip->addFile($md5File,$this->md5FileName) === false) throw new Exception("Unable to zip file: " .  $this->md5FileName . " to zip file: " . $fileName);
         $zip->close();
     }
 
